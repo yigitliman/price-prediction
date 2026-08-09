@@ -8,6 +8,20 @@ Predicts California house prices using XGBoost, with MLflow experiment tracking,
 
 The model is trained on the California Housing dataset. Given a set of block-group features (income level, house age, room count, location), it predicts the median house value in units of 100k USD.
 
+## Results
+
+Measured on the held-out test split — 20% of the 20,640 block groups — with the default hyperparameters (`max_depth=5`, `n_estimators=150`, `learning_rate=0.1`):
+
+| Metric | Value |
+|---|---|
+| RMSE | 0.481 |
+| MAE | 0.319 |
+| R² | 0.823 |
+
+The target is in units of 100k USD, so an RMSE of 0.481 is a typical error of about **48k USD** on values that average 207k USD across the dataset. The R² says the model accounts for 82% of the variance in house values, where a predict-the-mean baseline would score 0.
+
+Both the split and the model are seeded with `random_state=42`, so `python src/train.py` reproduces these exact numbers; every run is logged to MLflow with its params and metrics.
+
 ## Architecture
 
 ```mermaid
