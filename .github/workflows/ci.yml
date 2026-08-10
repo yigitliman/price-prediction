@@ -63,7 +63,7 @@ jobs:
       - name: Push image to GHCR
         if: github.event_name == 'push'
         run: |
-          docker tag mlops-price-prediction:${{ github.sha }} ghcr.io/yigit-8/price-prediction:latest
-          docker tag mlops-price-prediction:${{ github.sha }} ghcr.io/yigit-8/price-prediction:${{ github.sha }}
-          docker push ghcr.io/yigit-8/price-prediction:latest
-          docker push ghcr.io/yigit-8/price-prediction:${{ github.sha }}
+          docker tag mlops-price-prediction:${{ github.sha }} ghcr.io/yigitliman/price-prediction:latest
+          docker tag mlops-price-prediction:${{ github.sha }} ghcr.io/yigitliman/price-prediction:${{ github.sha }}
+          docker push ghcr.io/yigitliman/price-prediction:latest
+          docker push ghcr.io/yigitliman/price-prediction:${{ github.sha }}

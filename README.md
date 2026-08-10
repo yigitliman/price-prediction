@@ -1,6 +1,6 @@
 # MLOps Price Prediction
 
-![CI](https://github.com/yigit-8/price-prediction/actions/workflows/ci.yml/badge.svg)
+![CI](https://github.com/yigitliman/price-prediction/actions/workflows/ci.yml/badge.svg)
 
 Predicts California house prices using XGBoost, with MLflow experiment tracking, Evidently drift detection, and GitHub Actions CI/CD.
 
