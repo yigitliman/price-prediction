@@ -10,7 +10,7 @@ The model is trained on the California Housing dataset. Given a set of block-gro
 
 ## Results
 
-Measured on the held-out test split — 20% of the 20,640 block groups — with the default hyperparameters (`max_depth=5`, `n_estimators=150`, `learning_rate=0.1`):
+Measured on the held-out test split (20% of the 20,640 block groups) with the default hyperparameters (`max_depth=5`, `n_estimators=150`, `learning_rate=0.1`):
 
 | Metric | Value |
 |---|---|
