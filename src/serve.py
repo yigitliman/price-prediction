@@ -4,13 +4,15 @@ House price prediction API.
 Loads the XGBoost model and scaler saved by train.py.
 """
 
+import contextlib
 import os
 import sqlite3
 from contextlib import asynccontextmanager
 
 import joblib
 import pandas as pd
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
+from loguru import logger
 from pydantic import BaseModel, Field
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "..", "data", "model.joblib")
@@ -24,7 +26,7 @@ def load_model():
     if not os.path.exists(MODEL_PATH):
         raise RuntimeError("Model not found. Run src/train.py first.")
     model_bundle = joblib.load(MODEL_PATH)
-    print("Model loaded.")
+    logger.info("Model loaded.")
 
 
 def init_db():
@@ -97,14 +99,14 @@ app = FastAPI(
 
 
 class HouseFeatures(BaseModel):
-    MedInc: float = Field(..., description="Median income in block group")
-    HouseAge: float = Field(..., description="Median house age in block group")
-    AveRooms: float = Field(..., description="Average number of rooms per household")
-    AveBedrms: float = Field(..., description="Average number of bedrooms per household")
-    Population: float = Field(..., description="Block group population")
-    AveOccup: float = Field(..., description="Average household size")
-    Latitude: float = Field(..., description="Block group latitude")
-    Longitude: float = Field(..., description="Block group longitude")
+    MedInc: float = Field(..., gt=0, description="Median income in block group")
+    HouseAge: float = Field(..., ge=0, description="Median house age in block group")
+    AveRooms: float = Field(..., gt=0, description="Average number of rooms per household")
+    AveBedrms: float = Field(..., ge=0, description="Average number of bedrooms per household")
+    Population: float = Field(..., gt=0, description="Block group population")
+    AveOccup: float = Field(..., gt=0, description="Average household size")
+    Latitude: float = Field(..., ge=-90, le=90, description="Block group latitude")
+    Longitude: float = Field(..., ge=-180, le=180, description="Block group longitude")
 
 
 class PredictionResponse(BaseModel):
@@ -160,15 +162,14 @@ def predict_batch(houses: list[HouseFeatures]):
 
 
 @app.get("/logs")
-def get_logs(limit: int = 20):
-    conn = sqlite3.connect(DB_PATH)
-    rows = conn.execute(
-        """SELECT med_inc, house_age, ave_rooms, ave_bedrms, population,
-                  ave_occup, latitude, longitude, predicted_price, timestamp
-           FROM predictions ORDER BY timestamp DESC LIMIT ?""",
-        (limit,),
-    ).fetchall()
-    conn.close()
+def get_logs(limit: int = Query(default=20, ge=1, le=500)):
+    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
+        rows = conn.execute(
+            """SELECT med_inc, house_age, ave_rooms, ave_bedrms, population,
+                      ave_occup, latitude, longitude, predicted_price, timestamp
+               FROM predictions ORDER BY timestamp DESC LIMIT ?""",
+            (limit,),
+        ).fetchall()
     keys = ["med_inc", "house_age", "ave_rooms", "ave_bedrms", "population",
             "ave_occup", "latitude", "longitude", "predicted_price", "timestamp"]
     return [dict(zip(keys, row)) for row in rows]
@@ -176,12 +177,11 @@ def get_logs(limit: int = 20):
 
 @app.get("/stats")
 def get_stats():
-    conn = sqlite3.connect(DB_PATH)
-    row = conn.execute(
-        "SELECT COUNT(*), AVG(predicted_price), MIN(predicted_price), "
-        "MAX(predicted_price) FROM predictions"
-    ).fetchone()
-    conn.close()
+    with contextlib.closing(sqlite3.connect(DB_PATH)) as conn:
+        row = conn.execute(
+            "SELECT COUNT(*), AVG(predicted_price), MIN(predicted_price), "
+            "MAX(predicted_price) FROM predictions"
+        ).fetchone()
     return {
         "total_predictions": row[0],
         "avg_price": round(row[1], 4) if row[1] else 0.0,

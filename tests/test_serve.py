@@ -85,6 +85,21 @@ def test_batch_predict_empty_returns_400(client):
     assert response.status_code == 400
 
 
+@pytest.mark.parametrize(
+    ("field", "value"),
+    [
+        ("Population", -1_000_000.0),
+        ("AveRooms", -3.0),
+        ("MedInc", 0.0),
+        ("Latitude", 120.0),
+        ("Longitude", -200.0),
+    ],
+)
+def test_out_of_range_feature_returns_422(client, field, value):
+    response = client.post("/predict", json={**SAMPLE_HOUSE, field: value})
+    assert response.status_code == 422
+
+
 def test_logs_returns_list(client):
     response = client.get("/logs")
     assert response.status_code == 200

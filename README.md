@@ -2,7 +2,7 @@
 
 ![CI](https://github.com/yigitliman/price-prediction/actions/workflows/ci.yml/badge.svg)
 
-Predicts California house prices using XGBoost, with MLflow experiment tracking, Evidently drift detection, and GitHub Actions CI/CD.
+Predicts California house prices with XGBoost. The target is continuous, so the metrics are errors (RMSE, MAE, R²) rather than a classification score, and `POST /predict` returns a prediction interval instead of a class probability. Same MLflow and Evidently setup as the rest of the series.
 
 ## How it works
 
