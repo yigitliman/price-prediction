@@ -33,6 +33,7 @@ def load_data() -> pd.DataFrame:
 
 
 def train(max_depth: int, n_estimators: int, learning_rate: float) -> None:
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "file:./mlruns"))
     mlflow.set_experiment("price-prediction")
 
     with mlflow.start_run():
