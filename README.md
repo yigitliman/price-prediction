@@ -91,6 +91,12 @@ docker-compose up --build
 | Swagger docs | http://localhost:8000/docs |
 | MLflow UI | http://localhost:5000 |
 
+CI publishes the API image to GHCR on every push to `main`:
+
+```bash
+docker pull ghcr.io/yigitliman/price-prediction:latest
+```
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
